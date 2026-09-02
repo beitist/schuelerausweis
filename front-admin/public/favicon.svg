@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Hagen-ID Admin Dashboard Favicon -->
+  <!-- Blauer Kreis mit "HI" für Admin-Bereich -->
+  <defs>
+    <linearGradient id="admin-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4285f4"/>
+      <stop offset="100%" style="stop-color:#1a73e8"/>
+    </linearGradient>
+  </defs>
+  <!-- Äußerer Ring -->
+  <circle cx="50" cy="50" r="48" fill="#e3eafc"/>
+  <!-- Innerer Kreis -->
+  <circle cx="50" cy="50" r="44" fill="url(#admin-bg)"/>
+  <!-- "HI" Text -->
+  <text x="50" y="62" font-family="Arial, sans-serif" font-size="38" font-weight="bold" fill="white" text-anchor="middle">HI</text>
+</svg>

@@ -1,0 +1,488 @@
+/**
+ * Hagen-ID PWA - Styles
+ * 
+ * Mobiles Design für Schülerausweis
+ */
+
+/* ============================================================================
+   CSS CUSTOM PROPERTIES
+   ============================================================================ */
+
+:root {
+    --color-primary: #1a73e8;
+    --color-primary-dark: #1557b0;
+    --color-primary-light: #4285f4;
+
+    --color-success: #34a853;
+    --color-gold: #f9ab00;
+
+    --color-bg: #f0f4f8;
+    --color-card: #ffffff;
+    --color-text: #1e293b;
+    --color-text-light: #64748b;
+
+    --radius: 1rem;
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+}
+
+
+/* ============================================================================
+   RESET & BASE
+   ============================================================================ */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+#root {
+    height: 100%;
+}
+
+
+/* ============================================================================
+   LOADING SCREEN
+   ============================================================================ */
+
+.loading-screen {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: var(--color-bg);
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(26, 115, 232, 0.2);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ============================================================================
+   LOGIN PAGE
+   ============================================================================ */
+
+.login-page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+}
+
+.login-card {
+    width: 100%;
+    max-width: 360px;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 2rem;
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-logo h1 {
+    font-size: 1.75rem;
+    color: var(--color-primary);
+}
+
+.login-logo p {
+    color: var(--color-text-light);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.btn {
+    display: block;
+    width: 100%;
+    padding: 0.875rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.2s;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+}
+
+.login-error {
+    background: rgba(234, 67, 53, 0.1);
+    color: #ea4335;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.login-install-hint {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+
+/* ============================================================================
+   ID CARD
+   ============================================================================ */
+
+.card-page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: var(--color-bg);
+}
+
+.id-card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--color-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Lehrer-Variante */
+.id-card.teacher {
+    border: 3px solid var(--color-gold);
+}
+
+.id-card.teacher .card-header {
+    background: linear-gradient(135deg, var(--color-gold) 0%, #e68a00 100%);
+}
+
+/* Header mit Schullogo */
+.card-header {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.school-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1.2;
+    margin-bottom: 2px;
+}
+
+.card-type {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+/* Offline-Indikator */
+.offline-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+}
+
+/* Content */
+.card-content {
+    padding: 1.25rem;
+}
+
+.card-top {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.photo-container {
+    width: 100px;
+    height: 120px;
+    background: #e2e8f0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.photo-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #94a3b8;
+}
+
+.student-info {
+    flex: 1;
+}
+
+.student-name {
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.info-label {
+    color: var(--color-text-light);
+}
+
+.info-value {
+    font-weight: 500;
+}
+
+/* QR Code Section */
+.qr-section {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.qr-container {
+    position: relative;
+    display: inline-block;
+}
+
+.qr-code {
+    border-radius: 0.5rem;
+}
+
+/* Premium Hologramm-Effekt (Irisierend, wie echte Ausweise) */
+.hologram-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+            rgba(255, 0, 128, 0.15) 0%,
+            rgba(0, 255, 255, 0.12) 20%,
+            rgba(255, 255, 0, 0.1) 40%,
+            rgba(0, 128, 255, 0.12) 60%,
+            rgba(255, 0, 255, 0.1) 80%,
+            rgba(0, 255, 128, 0.12) 100%);
+    background-size: 400% 400%;
+    animation: hologram-shimmer 4s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: 0.5rem;
+    mix-blend-mode: overlay;
+    opacity: 0.8;
+}
+
+/* Zusätzlicher Glanz-Layer */
+.hologram-overlay::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.4) 50%,
+            transparent 70%);
+    animation: hologram-shine 3s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes hologram-shimmer {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes hologram-shine {
+    0% {
+        transform: translateX(-100%) rotate(45deg);
+    }
+
+    100% {
+        transform: translateX(100%) rotate(45deg);
+    }
+}
+
+.qr-timer {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--color-text-light);
+}
+
+.timer-bar {
+    width: 100%;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.timer-progress {
+    height: 100%;
+    background: var(--color-primary);
+    transition: width 1s linear;
+}
+
+/* Validity */
+.validity {
+    text-align: center;
+    padding: 0.75rem;
+    background: rgba(52, 168, 83, 0.1);
+    color: var(--color-success);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Footer */
+.card-footer {
+    padding: 1rem;
+    text-align: center;
+}
+
+.btn-logout {
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    color: var(--color-text-light);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+
+/* ============================================================================
+   KICKOUT SCREEN (Highlander)
+   ============================================================================ */
+
+.kickout-screen {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+}
+
+.kickout-card {
+    width: 100%;
+    max-width: 360px;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    text-align: center;
+}
+
+.kickout-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.kickout-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+}
+
+.kickout-card p {
+    color: var(--color-text-light);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}

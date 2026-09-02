@@ -1,0 +1,5 @@
+# Dev-/CI-Abhängigkeiten (NICHT ins Prod-Image).
+# Getrennt von requirements.txt, damit der Test-Stack nicht mitdeployed wird.
+-r requirements.txt
+
+pytest==9.1.1

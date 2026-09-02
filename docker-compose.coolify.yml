@@ -1,0 +1,209 @@
+# ============================================================================
+# Hagen-ID: Docker Compose für COOLIFY
+# ============================================================================
+# Coolify-spezifische Besonderheiten:
+#   1. KEINE custom networks. Coolify verwaltet ein eigenes Stack-Netz;
+#      selbst definierte networks führen laut Coolify-Docs zu 504/Hängern
+#      (Traefik wählt nicht-deterministisch die falsche Container-IP).
+#      -> Nebeneffekt: eine explizite DB-Netz-Isolation (internal network)
+#         entfällt; ausserhalb von Coolify sollte die DB in ein internes
+#         Netz ohne externe Erreichbarkeit gelegt werden.
+#   2. Das Schema erzeugt das Backend beim Start selbst
+#      (SQLModel.metadata.create_all + idempotente Startup-Migrationen).
+#   3. Domains/TLS macht Coolify pro Service (Traefik + Let's Encrypt).
+#
+# In Coolify zu setzende Environment-Variablen:
+#   DB_PASSWORD       z.B. openssl rand -base64 32
+#   JWT_SECRET        python -c "import secrets; print(secrets.token_hex(32))"
+#   SECRETS_KEY       python3 -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'
+#   ALLOWED_ORIGINS   https://ausweis.example.com,https://schuladmin.example.com   (PWA + Admin!)
+#   VITE_API_URL      https://api.example.com
+#   Empfohlen:        COOKIE_DOMAIN=.example.com · API_PUBLIC_URL=https://api.example.com
+#                     (COOKIE_SECURE default true; TRUSTED_PROXY_HOPS default 1)
+#
+# HINWEIS: Die API-Domain steht zusätzlich HARTKODIERT in der CSP von
+#          front-pwa/nginx.conf + front-admin/nginx.conf (connect-src) — bei
+#          Domainwechsel dort mitziehen, sonst blockt der Browser die API-Calls.
+# ============================================================================
+
+services:
+  # --------------------------------------------------------------------------
+  # POSTGRESQL DATENBANK
+  # --------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: hagenid-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: hagenid
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?}
+      POSTGRES_DB: hagenid
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hagenid -d hagenid"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/postgresql
+
+  # --------------------------------------------------------------------------
+  # FASTAPI BACKEND
+  # --------------------------------------------------------------------------
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hagenid-api
+    restart: unless-stopped
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    environment:
+      DATABASE_URL: postgresql://hagenid:${DB_PASSWORD}@db:5432/hagenid
+      JWT_SECRET: ${JWT_SECRET:?}
+      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-1440}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?}
+      # Reverse-Proxy / Auth-Cookies — Coolify/Traefik = 1 Hop.
+      TRUSTED_PROXY_HOPS: ${TRUSTED_PROXY_HOPS:-1}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
+      # Feld-Verschlüsselung at-rest (PII, login_pin, totp_secret, Fotos).
+      # Key sicher aufbewahren: Verlust = Daten nicht mehr entschlüsselbar.
+      SECRETS_KEY: ${SECRETS_KEY:?}   # ohne Key kein Start; Verlust = Daten unrettbar
+      # Basis-URL für den Dauer-QR der Schulbescheinigung (sonst Proxy-Header-Fallback).
+      API_PUBLIC_URL: ${API_PUBLIC_URL:-}
+      RATE_LIMIT_ATTEMPTS: ${RATE_LIMIT_ATTEMPTS:-5}
+      RATE_LIMIT_WINDOW_MINUTES: ${RATE_LIMIT_WINDOW_MINUTES:-15}
+      # Seed/Reset (nur wirksam bei leerer DB bzw. RESET_ADMIN_PASSWORD=true).
+      # DEFAULT_ADMIN_PASSWORD leer → Zufallspasswort, EINMALIG im Log.
+      DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL:-admin@example.com}
+      DEFAULT_SUPERADMIN_EMAIL: ${DEFAULT_SUPERADMIN_EMAIL:-superadmin@example.com}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-}
+      RESET_ADMIN_PASSWORD: ${RESET_ADMIN_PASSWORD:-}
+      RLS_ENABLED: ${RLS_ENABLED:-true}   # Mandantentrennung per Postgres-RLS erzwingen.
+                                          # Kill-Switch: bei Problemen RLS_ENABLED=false setzen (kein Code-Deploy nötig).
+      SQL_DEBUG: "false"
+      PYTHONDONTWRITEBYTECODE: "1"
+
+    expose:
+      - "8000"
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+    read_only: true
+    tmpfs:
+      - /tmp
+
+    security_opt:
+      - no-new-privileges:true
+
+  # --------------------------------------------------------------------------
+  # ADMIN FRONTEND (React + Vite -> Nginx)
+  # --------------------------------------------------------------------------
+  admin:
+    build:
+      context: ./front-admin
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:?}
+    container_name: hagenid-admin
+    restart: unless-stopped
+
+    expose:
+      - "80"
+
+    depends_on:
+      - api
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 32M
+
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /run
+
+    security_opt:
+      - no-new-privileges:true
+
+  # --------------------------------------------------------------------------
+  # PWA FRONTEND (React + Vite -> Nginx)
+  # --------------------------------------------------------------------------
+  pwa:
+    build:
+      context: ./front-pwa
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:?}
+    container_name: hagenid-pwa
+    restart: unless-stopped
+
+    expose:
+      - "80"
+
+    depends_on:
+      - api
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 32M
+
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /run
+
+    security_opt:
+      - no-new-privileges:true
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  postgres_data:
+    name: hagenid_postgres_data

@@ -1,0 +1,76 @@
+name: CI
+
+# Läuft bei jedem Push und Pull Request. Ziel: Die Sicherheitsarbeit ist
+# selbsttragend — Backend-Tests (inkl. Routen-Inventar) und Frontend-Builds
+# müssen grün sein, sonst rot. „Mechanismus statt Disziplin".
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend-tests:
+    name: Backend-Tests (pytest)
+    runs-on: ubuntu-latest
+
+    # Wegwerf-Postgres für die PG-only-Tests (RLS/ENUM/Migrationen — SQLite kann das nicht).
+    # DB-Name enthält "test" → die Sicherheitssperre in conftest.py lässt den Harness zu.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: hagenid_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d hagenid_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Python 3.11 (wie Prod-Image)
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Abhängigkeiten installieren
+        run: pip install -r backend/requirements-dev.txt
+
+      - name: Tests
+        working-directory: backend
+        env:
+          # Kein echtes Secret — nur damit die App im Test importiert.
+          JWT_SECRET: ci_test_secret_min_32_chars_0123456789
+          DATABASE_URL: "sqlite://"
+          # Aktiviert die Postgres-only-Tests (conftest.py). Wegwerf-DB, "test" im Namen.
+          TEST_DATABASE_URL: "postgresql://test:test@localhost:5432/hagenid_test"
+        run: python -m pytest -q
+
+  frontend-build:
+    name: Frontend-Build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [front-admin, front-pwa]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+
+      - name: Install & Build
+        working-directory: ${{ matrix.app }}
+        run: |
+          npm ci
+          npm run build

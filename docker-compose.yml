@@ -1,0 +1,144 @@
+# ============================================================================
+# Hagen-ID: Docker Compose für LOKALE ENTWICKLUNG
+# ============================================================================
+#
+#     NUR FÜR ENTWICKLUNG! Für Produktion: docker-compose.coolify.yml
+#     (bzw. eine eigene gehärtete Prod-Compose ohne exponierten DB-Port).
+#
+# Verwendung:
+#   docker-compose up -d          # Alle Services starten
+#   docker-compose logs -f api    # Backend-Logs anzeigen
+#   docker-compose down           # Alles stoppen
+#
+# Voraussetzung:
+#   .env Datei muss existieren (siehe .env.example)
+#
+# Services:
+#   - db:    PostgreSQL Datenbank (intern, Port 5432)
+#   - api:   FastAPI Backend (http://localhost:8000)
+#   - admin: Admin-Frontend (http://localhost:5173)
+#   - pwa:   Schüler-PWA (http://localhost:5174)
+# ============================================================================
+
+services:
+  # ==========================================================================
+  # POSTGRESQL DATENBANK
+  # ==========================================================================
+  db:
+    image: postgres:16-alpine
+    container_name: hagenid-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: hagenid
+      # DB-Passwort MUSS in .env gesetzt werden (bewusst kein Default)
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD muss in .env gesetzt werden}
+      POSTGRES_DB: hagenid
+
+    volumes:
+      # Persistente Daten
+      - postgres_data:/var/lib/postgresql/data
+
+    ports:
+      #  ═══════════════════════════════════════════════════════════════
+      #   DB-PORT NUR FÜR LOKALE ENTWICKLUNG!
+      #   In Produktion: docker-compose.coolify.yml verwenden (kein Port!)
+      #   Wer den Port exponiert, macht die DB für jeden im Netz erreichbar!
+      #  ═══════════════════════════════════════════════════════════════
+      - "5432:5432"
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U hagenid -d hagenid" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================================================
+  # FASTAPI BACKEND
+  # ==========================================================================
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hagenid-api
+    restart: unless-stopped
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    environment:
+      # Datenbank-Verbindung
+      # Standard: Interne DB. Wenn in .env gesetzt, wird die externe genommen.
+      DATABASE_URL: ${DATABASE_URL:-postgresql://hagenid:${DB_PASSWORD}@db:5432/hagenid}
+
+      # JWT Secret MUSS in .env gesetzt werden (bewusst kein Default)
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET muss in .env gesetzt werden (min 32 Zeichen)}
+      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-10080}
+
+      # CORS Origins (Frontends)
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:5174,http://localhost:3000}
+
+      # Rate Limiting
+      RATE_LIMIT_ATTEMPTS: ${RATE_LIMIT_ATTEMPTS:-5}
+      RATE_LIMIT_WINDOW_MINUTES: ${RATE_LIMIT_WINDOW_MINUTES:-15}
+
+      # Debug (nur Entwicklung)
+      SQL_DEBUG: ${SQL_DEBUG:-false}
+
+    ports:
+      - "8000:8000"
+
+    # Für Entwicklung: Code-Änderungen live übernehmen
+    volumes:
+      - ./backend:/app:ro
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  # ==========================================================================
+  # ADMIN FRONTEND (React + Vite)
+  # ==========================================================================
+  admin:
+    build:
+      context: ./front-admin
+      dockerfile: Dockerfile
+    container_name: hagenid-admin
+    restart: unless-stopped
+
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+
+    ports:
+      - "5173:80"
+
+    depends_on:
+      - api
+
+  # ==========================================================================
+  # PWA FRONTEND (React + Vite)
+  # ==========================================================================
+  pwa:
+    build:
+      context: ./front-pwa
+      dockerfile: Dockerfile
+    container_name: hagenid-pwa
+    restart: unless-stopped
+
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+
+    ports:
+      - "5174:80"
+
+    depends_on:
+      - api
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  postgres_data:
+    name: hagenid_postgres_data

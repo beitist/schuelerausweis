@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hagen-ID — Digitaler Schülerausweis | beiti.me</title>
+  <meta name="description"
+    content="Hagen-ID ist der digitale Schülerausweis für Schulen in NRW — datenschutzkonform, fälschungssicher und einfach zu verwalten. Technische Dokumentation für Schulentscheider.">
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* Zusätzliche Styles für die Dokumentationsseite */
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+    }
+
+    .doc-table th,
+    .doc-table td {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--color-border, #e2e8f0);
+    }
+
+    .doc-table th {
+      font-weight: 600;
+      color: var(--color-heading, #1a202c);
+      background: var(--color-bg-alt, #f7f8fa);
+    }
+
+    .doc-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .doc-callout {
+      border-left: 4px solid var(--color-primary, #1a73e8);
+      background: var(--color-bg-alt, #f7f8fa);
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.95rem;
+    }
+
+    .doc-callout--green {
+      border-left-color: #16a34a;
+    }
+
+    .doc-callout--amber {
+      border-left-color: #d97706;
+    }
+
+    .doc-callout p {
+      margin: 0;
+    }
+
+    .doc-callout p+p {
+      margin-top: 0.5rem;
+    }
+
+    .doc-flow {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+    }
+
+    .doc-flow__step {
+      background: var(--color-bg-alt, #f7f8fa);
+      border: 1px solid var(--color-border, #e2e8f0);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .doc-flow__arrow {
+      color: var(--color-muted, #718096);
+      font-size: 1.2rem;
+    }
+
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .doc-card {
+      background: var(--color-bg, #fff);
+      border: 1px solid var(--color-border, #e2e8f0);
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+
+    .doc-card h4 {
+      margin: 0 0 0.5rem;
+      font-size: 1rem;
+    }
+
+    .doc-card p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--color-muted, #718096);
+    }
+
+    .doc-section-nav {
+      background: var(--color-bg-alt, #f7f8fa);
+      border: 1px solid var(--color-border, #e2e8f0);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .doc-section-nav h3 {
+      margin: 0 0 1rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-muted, #718096);
+    }
+
+    .doc-section-nav ol {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+
+    .doc-section-nav li {
+      margin-bottom: 0.35rem;
+    }
+
+    .doc-section-nav a {
+      text-decoration: none;
+      color: var(--color-primary, #1a73e8);
+    }
+
+    .doc-section-nav a:hover {
+      text-decoration: underline;
+    }
+
+    .doc-prose {
+      max-width: 780px;
+    }
+
+    .doc-prose p {
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    .doc-prose h3 {
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .doc-prose ul,
+    .doc-prose ol {
+      margin-bottom: 1rem;
+      padding-left: 1.25rem;
+    }
+
+    .doc-prose li {
+      line-height: 1.7;
+      margin-bottom: 0.35rem;
+    }
+
+    .doc-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .doc-badge--crypto {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+
+    .doc-badge--auth {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .doc-badge--gdpr {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .screenshot-placeholder {
+      aspect-ratio: 16/9;
+      max-height: 400px;
+    }
+
+    .screenshot-placeholder--square {
+      aspect-ratio: 4/3;
+      max-height: 350px;
+    }
+
+    .screenshot-placeholder--diagram {
+      aspect-ratio: 21/9;
+      max-height: 300px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div data-component="nav"></div>
+
+  <!-- Breadcrumb -->
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">beiti.me</a>
+      <span>&rsaquo;</span>
+      <a href="index.html#projects">Projekte</a>
+      <span>&rsaquo;</span>
+      Hagen-ID
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero hero--project">
+    <div class="container">
+      <img src="assets/img/hagen-id-logo.png" alt="Hagen-ID Logo"
+        style="height: 84px; width: auto; display: block; margin-bottom: 1rem; border-radius: 12px;">
+      <div class="hero__title-row">
+        <h1>Hagen-ID</h1>
+        <span class="badge badge--stable">Stable</span>
+      </div>
+      <p class="hero__tagline">
+        <span lang="de">Der digitale Schülerausweis &mdash; datenschutzkonform, fälschungssicher und einfach zu verwalten.</span><span lang="en">The digital student ID &mdash; privacy-compliant, tamper-proof and easy to manage.</span>
+      </p>
+      <p style="max-width: 680px; margin-top: 0.5rem; font-size: 0.95rem; opacity: 0.85;">
+        <span lang="de">Diese Seite richtet sich an Schulleitungen, IT-Beauftragte und Schulträger, die den Einsatz eines digitalen
+        Schülerausweises prüfen. Sie beschreibt Funktionsweise, Sicherheitsarchitektur und Datenschutzkonzept
+        von Hagen-ID im Detail.</span><span lang="en">This page is intended for school administrators, IT officers and school authorities evaluating the implementation of a digital student ID. It describes the functionality, security architecture and privacy concept of Hagen-ID in detail.</span>
+      </p>
+      <div class="hero__actions">
+        <a href="#inhaltsverzeichnis" class="btn btn--primary">
+          <span lang="de">Zum Inhalt</span><span lang="en">To content</span>
+        </a>
+        <a href="#kontakt" class="btn btn--secondary">
+          <span lang="de">Kontakt aufnehmen</span><span lang="en">Get in touch</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screenshot: PWA Ausweis -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container" style="text-align: center;">
+      <img src="assets/img/pwa-ausweis.png"
+        alt="PWA-Ausweisansicht auf einem Smartphone: Schulname, Foto, Name, Klasse, dynamischer QR-Code und Gültigkeit"
+        style="max-width: 300px; width: 100%; height: auto; border-radius: 18px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);"
+        loading="lazy">
+      <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.75rem;">
+        <span lang="de">Der digitale Ausweis in der PWA &mdash; mit Testdaten und dynamischem QR-Code</span><span lang="en">The digital ID card in the PWA &mdash; with test data and a dynamic QR code</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- Inhaltsverzeichnis -->
+  <section class="section section--alt" id="inhaltsverzeichnis">
+    <div class="container">
+      <div class="doc-section-nav">
+        <h3><span lang="de">Inhaltsverzeichnis</span><span lang="en">Table of Contents</span></h3>
+        <ol>
+          <li><a href="#ueberblick"><span lang="de">Was ist Hagen-ID?</span><span lang="en">What is Hagen-ID?</span></a></li>
+          <li><a href="#funktionsweise"><span lang="de">Funktionsweise im Überblick</span><span lang="en">How it Works</span></a></li>
+          <li><a href="#faelschungsschutz"><span lang="de">Fälschungsschutz: TOTP &amp; digitale Signatur</span><span lang="en">Tamper Protection: TOTP &amp; Digital Signature</span></a></li>
+          <li><a href="#datenschutz"><span lang="de">Datenschutz &amp; DSGVO-Konformität</span><span lang="en">Privacy &amp; GDPR Compliance</span></a></li>
+          <li><a href="#datenmodell"><span lang="de">Gespeicherte Daten &amp; Datenminimierung</span><span lang="en">Stored Data &amp; Data Minimization</span></a></li>
+          <li><a href="#rollen"><span lang="de">Rollenkonzept &amp; Zugriffssteuerung</span><span lang="en">Role Model &amp; Access Control</span></a></li>
+          <li><a href="#prozesse"><span lang="de">Verwaltungsprozesse</span><span lang="en">Administrative Processes</span></a></li>
+          <li><a href="#architektur"><span lang="de">Technische Architektur</span><span lang="en">Technical Architecture</span></a></li>
+          <li><a href="#betrieb"><span lang="de">Einrichtung &amp; Betrieb</span><span lang="en">Setup &amp; Operations</span></a></li>
+          <li><a href="#kontakt"><span lang="de">Kontakt &amp; nächste Schritte</span><span lang="en">Contact &amp; Next Steps</span></a></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 1. Überblick -->
+  <!-- ============================================================ -->
+  <section class="section" id="ueberblick">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title"><span lang="de">1. Was ist Hagen-ID?</span><span lang="en">1. What is Hagen-ID?</span></h2>
+      </div>
+      <div class="doc-prose">
+        <p>
+          <span lang="de">Hagen-ID ist ein digitaler Schülerausweis, der als Progressive Web App (PWA) auf dem Smartphone der
+          Schülerinnen und Schüler läuft. Er ersetzt den klassischen Papier- oder Plastikausweis durch eine
+          fälschungssichere, digital verifizierbare Lösung.</span><span lang="en">Hagen-ID is a digital student ID card that runs as a Progressive Web App (PWA) on students' smartphones. It replaces traditional paper or plastic ID cards with a tamper-proof, digitally verifiable solution.</span>
+        </p>
+        <p>
+          <span lang="de">Das System wurde speziell für den Schulkontext in Nordrhein-Westfalen entwickelt und berücksichtigt
+          die Anforderungen der DSGVO sowie der schulrechtlichen Datenschutzverordnung (VO-DV I / VO-DV II).</span><span lang="en">The system was specifically developed for the school context in North Rhine-Westphalia and meets the requirements of the GDPR as well as state school data protection regulations (VO-DV I / VO-DV II).</span>
+        </p>
+
+        <h3><span lang="de">Kernmerkmale</span><span lang="en">Key Features</span></h3>
+        <ul>
+          <li><strong><span lang="de">Kein App-Download nötig:</span><span lang="en">No app download required:</span></strong> <span lang="de">Hagen-ID ist eine Progressive Web App (PWA) und läuft
+            direkt im Browser. Schülerinnen und Schüler können die Anwendung optional zum Homescreen hinzufügen,
+            sodass sie sich wie eine native App verhält &mdash; ohne App Store, ohne Installation, auf jedem Gerät
+            mit einem modernen Browser nutzbar.</span><span lang="en">Hagen-ID is a Progressive Web App (PWA) and runs directly in the browser. Students can optionally add the app to their home screen, making it behave like a native app &mdash; no app store, no installation, usable on any device with a modern browser.</span></li>
+          <li><strong><span lang="de">Fälschungssicherer QR-Code:</span><span lang="en">Tamper-proof QR code:</span></strong> <span lang="de">Der QR-Code auf dem Ausweis wechselt alle 30 Sekunden
+            und ist kryptografisch signiert. Ein Screenshot oder eine Kopie ist daher wertlos.</span><span lang="en">The QR code on the ID card changes every 30 seconds and is cryptographically signed. A screenshot or copy is therefore worthless.</span></li>
+          <li><strong><span lang="de">Offline-fähig:</span><span lang="en">Works offline:</span></strong> <span lang="de">Nach dem erstmaligen Login funktioniert der Ausweis auch ohne
+            Internetverbindung. Die QR-Code-Generierung erfolgt vollständig auf dem Gerät.</span><span lang="en">After the initial login, the ID card works without internet connectivity. QR code generation happens entirely on the device.</span></li>
+          <li><strong><span lang="de">Ein-Geräte-Prinzip (Highlander):</span><span lang="en">Single-device principle (Highlander):</span></strong> <span lang="de">Der Ausweis ist immer nur auf genau einem Gerät
+            gültig. Ein Login auf einem neuen Gerät macht den alten Ausweis automatisch ungültig.</span><span lang="en">The ID card is always valid on exactly one device. Login on a new device automatically invalidates the old card.</span></li>
+          <li><strong><span lang="de">Auch für Lehrkräfte:</span><span lang="en">Also for teachers:</span></strong> <span lang="de">Lehrkräfte erhalten ebenfalls einen digitalen Ausweis
+            über die PWA. Sie werden in einer virtuellen Klasse &bdquo;Lehrerkollegium&ldquo; geführt und können
+            ihr Foto selbst über die App hochladen.</span><span lang="en">Teachers also receive a digital ID card via the PWA. They are managed in a virtual class "Lehrerkollegium" (staff) and can upload their own photo directly through the app.</span></li>
+          <li><strong><span lang="de">Zentrale Verwaltung:</span><span lang="en">Central management:</span></strong> <span lang="de">Schulverwaltungen pflegen Schülerdaten über ein
+            Admin-Dashboard im Browser &mdash; inklusive CSV-Import aus der Schulverwaltungssoftware
+            oder automatisierter Synchronisation über eine REST-API.</span><span lang="en">Schools manage student data through a browser-based admin dashboard &mdash; including CSV import from student management software or automated synchronization via a REST API.</span></li>
+          <li><strong><span lang="de">Schulbescheinigung als PDF:</span><span lang="en">Enrollment certificate as PDF:</span></strong> <span lang="de">Auf Wunsch können Schülerinnen und Schüler
+            eine Schulbescheinigung direkt aus der App herunterladen &mdash; mit einem dauerhaften
+            Verifizierungs-QR-Code, der beim Scannen den aktuellen Einschreibestatus live anzeigt.</span><span lang="en">Optionally, students can download an enrollment certificate directly from the app &mdash; with a permanent verification QR code that shows the current enrollment status live when scanned.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 2. Funktionsweise -->
+  <!-- ============================================================ -->
+  <section class="section section--alt" id="funktionsweise">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title"><span lang="de">2. Funktionsweise im Überblick</span><span lang="en">2. How it Works</span></h2>
+      </div>
+      <div class="doc-prose">
+        <p>
+          <span lang="de">Hagen-ID besteht aus drei Komponenten: dem <strong>Schülerausweis (PWA)</strong> auf dem Smartphone,
+          dem <strong>Admin-Dashboard</strong> für die Schulverwaltung und der <strong>Verifizierungsschnittstelle</strong>
+          zum Prüfen eines vorgelegten Ausweises.</span><span lang="en">Hagen-ID consists of three components: the <strong>student ID card (PWA)</strong> on the smartphone, the <strong>admin dashboard</strong> for school management, and the <strong>verification interface</strong> for checking a presented ID.</span>
+        </p>
+
+        <h3><span lang="de">Der Ausweis auf dem Smartphone</span><span lang="en">The ID Card on the Smartphone</span></h3>
+        <p>
+          <span lang="de">Schülerinnen und Schüler rufen die PWA im Browser auf und melden sich mit ihrem Nachnamen,
+          Geburtsdatum und einer persönlichen 6-stelligen PIN an. Nach dem Login wird der digitale
+          Ausweis angezeigt: Name, Klasse, Schulfoto und ein dynamischer QR-Code, der alle 30 Sekunden
+          wechselt.</span><span lang="en">Students open the PWA in their browser and log in with their last name, date of birth, and a personal 6-digit PIN. After login, the digital ID is displayed: name, class, school photo, and a dynamic QR code that changes every 30 seconds.</span>
+        </p>
+
+        <!-- Screenshot: PWA Login -->
+        <div style="text-align: center; margin: 1.5rem 0;">
+          <img src="assets/img/pwa-login.png"
+            alt="Login-Bildschirm der PWA: Nachname, Geburtsdatum und 6-stellige PIN"
+            style="max-width: 280px; width: 100%; height: auto; border-radius: 18px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);"
+            loading="lazy">
+          <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.75rem;">
+            <span lang="de">Login mit Nachname, Geburtsdatum und PIN &mdash; ohne Passwort, ohne E-Mail-Adresse</span><span lang="en">Login with last name, date of birth and PIN &mdash; no password, no email address</span>
+          </p>
+        </div>
+
+        <h3><span lang="de">Verifizierung des Ausweises</span><span lang="en">ID Card Verification</span></h3>
+        <p>
+          <span lang="de">Wer die Identität prüfen möchte &mdash; zum Beispiel an der Bibliothek, in der Mensa oder am
+          Schuleingang &mdash; scannt den QR-Code mit einem beliebigen Smartphone oder Tablet. Die Verifizierung
+          erfolgt serverseitig und liefert ein eindeutiges Ergebnis: gültig oder ungültig.</span><span lang="en">Anyone who wants to verify identity &mdash; for example at the library, in the cafeteria, or at the school entrance &mdash; scans the QR code with any smartphone or tablet. Verification happens on the server side and returns a clear result: valid or invalid.</span>
+        </p>
+
+        <div class="doc-callout doc-callout--green">
+          <p><strong><span lang="de">Kein spezielles Gerät nötig:</span><span lang="en">No special device needed:</span></strong> <span lang="de">Die Verifizierung funktioniert mit jedem Gerät, das einen
+            QR-Code scannen kann. Es wird keine spezielle App benötigt &mdash; ein Smartphone-Browser genügt.</span><span lang="en">Verification works with any device that can scan a QR code. No special app is needed &mdash; a smartphone browser is sufficient.</span></p>
+        </div>
+
+        <h3><span lang="de">Ablauf im Überblick</span><span lang="en">Process Overview</span></h3>
+        <div class="doc-flow">
+          <span class="doc-flow__step"><span lang="de">Schülerdaten importieren</span><span lang="en">Import student data</span></span>
+          <span class="doc-flow__arrow">&rarr;</span>
+          <span class="doc-flow__step"><span lang="de">Login-PINs verteilen</span><span lang="en">Distribute login PINs</span></span>
+          <span class="doc-flow__arrow">&rarr;</span>
+          <span class="doc-flow__step"><span lang="de">Schüler loggt sich ein</span><span lang="en">Student logs in</span></span>
+          <span class="doc-flow__arrow">&rarr;</span>
+          <span class="doc-flow__step"><span lang="de">Ausweis aktiv</span><span lang="en">ID card active</span></span>
+          <span class="doc-flow__arrow">&rarr;</span>
+          <span class="doc-flow__step"><span lang="de">QR-Code verifizierbar</span><span lang="en">QR code verifiable</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 3. Fälschungsschutz -->
+  <!-- ============================================================ -->
+  <section class="section" id="faelschungsschutz">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title"><span lang="de">3. Fälschungsschutz: TOTP &amp; digitale Signatur</span><span lang="en">3. Tamper Protection: TOTP &amp; Digital Signature</span></h2>
+        <p class="section__subtitle">
+          <span lang="de">Warum ein Screenshot des Ausweises wertlos ist.</span><span lang="en">Why a screenshot of the ID card is worthless.</span>
+        </p>
+      </div>
+      <div class="doc-prose">
+        <p>
+          <span lang="de">Der Fälschungsschutz von Hagen-ID basiert auf zwei kryptografischen Verfahren, die
+          ineinandergreifen: <strong>TOTP</strong> (Time-based One-Time Password) für den zeitlich begrenzten
+          Code und eine <strong>gerätegebundene digitale Signatur</strong> (ECDSA P-256) über den gesamten
+          QR-Code-Inhalt.</span><span lang="en">Hagen-ID's tamper protection is based on two cryptographic methods that work together: <strong>TOTP</strong> (Time-based One-Time Password) for the time-limited code and a <strong>device-bound digital signature</strong> (ECDSA P-256) over the entire QR code content.</span>
+        </p>
+
+        <h3><span lang="de">TOTP &mdash; der wechselnde Code</span><span lang="en">TOTP — the changing code</span> <span class="doc-badge doc-badge--crypto">Cryptography</span></h3>
+        <p>
+          <span lang="de">Bei der Erstanmeldung erhält jeder Schüler ein individuelles TOTP-Secret (eine zufällige
+          Zeichenfolge nach RFC 6238). Aus diesem Secret und der aktuellen Uhrzeit berechnet die PWA
+          alle 30 Sekunden einen neuen 6-stelligen Code &mdash; vollständig offline auf dem Gerät. Der
+          Server kennt dasselbe Secret und kann den Code unabhängig verifizieren.</span><span lang="en">At first login, each student receives an individual TOTP Secret (a random string according to RFC 6238). Using this secret and the current time, the PWA calculates a new 6-digit code every 30 seconds &mdash; entirely offline on the device. The server knows the same secret and can verify the code independently.</span>
+        </p>
+        <p>
+          <span lang="de">Das bedeutet: Selbst wenn jemand den QR-Code fotografiert oder abschreibt, ist dieser nach
+          spätestens 30 Sekunden ungültig. Ein statischer Screenshot reicht nicht aus, um sich als
+          eine andere Person auszugeben.</span><span lang="en">This means: even if someone photographs or writes down the QR code, it becomes invalid after at most 30 seconds. A static screenshot is not sufficient to impersonate another person.</span>
+        </p>
+
+        <h3><span lang="de">Gerätegebundene Signatur &mdash; der digitale Stempel</span><span lang="en">Device-bound Signature — the digital seal</span> <span class="doc-badge doc-badge--crypto">Cryptography</span></h3>
+        <p>
+          <span lang="de">Zusätzlich zum TOTP-Code wird der gesamte QR-Code-Inhalt (Schüler-ID, TOTP-Code, Session-Kennung und
+          Zeitstempel) digital signiert &mdash; mit ECDSA auf der Kurve P-256, einem etablierten asymmetrischen
+          Signaturverfahren, das jeder moderne Browser nativ unterstützt.</span><span lang="en">In addition to the TOTP code, the entire QR code content (student ID, TOTP code, session identifier and timestamp) is digitally signed &mdash; using ECDSA on the P-256 curve, an established asymmetric signature algorithm natively supported by every modern browser.</span>
+        </p>
+        <p>
+          <span lang="de">Das Schlüsselpaar entsteht dabei direkt <strong>auf dem Gerät des Schülers</strong> &mdash; über die
+          WebCrypto-API des Browsers und als <em>nicht exportierbarer</em> Schlüssel: Der <strong>private
+          Schlüssel</strong> kann per Konstruktion nicht ausgelesen werden, auch nicht durch eingeschleuste
+          Schadskripte, und verlässt das Gerät nie. Nur der <strong>öffentliche Schlüssel</strong> wird beim
+          Server registriert und dient dort ausschließlich zur Verifizierung &mdash; der Server selbst
+          signiert nie.</span><span lang="en">The key pair is created directly <strong>on the student's device</strong> &mdash; via the browser's WebCrypto API and as a <em>non-extractable</em> key: by construction, the <strong>private key</strong> cannot be read out, not even by injected malicious scripts, and never leaves the device. Only the <strong>public key</strong> is registered with the server, where it is used solely for verification &mdash; the server itself never signs.</span>
+        </p>
+
+        <div class="doc-callout">
+          <p><strong><span lang="de">Zusammenspiel:</span><span lang="en">How it works together:</span></strong> <span lang="de">Der QR-Code enthält die Schüler-ID, den aktuellen TOTP-Code,
+            eine Session-Kennung, den Zeitstempel und die digitale Signatur über all diese Daten. Bei der
+            Verifizierung prüft der Server:</span><span lang="en">The QR code contains the student ID, the current TOTP code, a session identifier, the timestamp and the digital signature over all this data. When verifying, the server checks:</span></p>
+          <p><span lang="de">1. Ist der TOTP-Code für diesen Schüler gerade gültig? (Zeitfenster: &plusmn;30 Sekunden)</span><span lang="en">1. Is the TOTP code currently valid for this student? (Time window: &plusmn;30 seconds)</span></p>
+          <p><span lang="de">2. Ist der Zeitstempel aktuell?</span><span lang="en">2. Is the timestamp fresh?</span></p>
+          <p><span lang="de">3. Gehört die Session-Kennung zur aktuell aktiven Sitzung? (Ein-Geräte-Prinzip)</span><span lang="en">3. Does the session identifier belong to the currently active session? (single-device principle)</span></p>
+          <p><span lang="de">4. Stimmt die Signatur mit dem registrierten Geräteschlüssel überein?</span><span lang="en">4. Does the signature match the registered device key?</span></p>
+          <p><span lang="de">Erst wenn alle vier Prüfungen bestanden sind, gilt der Ausweis als verifiziert. Ein QR-Code
+            ohne gültige Signatur wird grundsätzlich abgelehnt (fail-closed).</span><span lang="en">The ID card is only considered verified if all four checks pass. A QR code without a valid signature is always rejected (fail-closed).</span></p>
+        </div>
+
+        <!-- Diagramm Verifizierungsablauf -->
+        <div class="diagram" id="diagram-verification" style="margin: 1.5rem 0;">
+          <img src="assets/img/verification-flow.svg" alt="Verification flow: QR code scan to result — TOTP check, signature check, session check" style="max-width: 100%; height: auto;">
+        </div>
+
+        <h3><span lang="de">Highlander-Prinzip &mdash; ein Gerät, ein Ausweis</span><span lang="en">Highlander Principle — one device, one ID card</span> <span class="doc-badge doc-badge--auth">Auth</span></h3>
+        <p>
+          <span lang="de">Bei jedem Login wird ein neuer kryptografischer Session-Token generiert (256 Bit Entropie).
+          Der SHA-256-Hash dieses Tokens wird in der Datenbank gespeichert. Gleichzeitig wird der bisherige
+          Geräteschlüssel serverseitig entwertet; das neue Gerät erzeugt ein frisches Schlüsselpaar und
+          registriert dessen öffentlichen Schlüssel. Dadurch werden alle vorherigen Sitzungen automatisch
+          ungültig.</span><span lang="en">At each login, a new cryptographic session token is generated (256 bits of entropy). The SHA-256 hash of this token is stored in the database. At the same time, the previous device key is invalidated on the server; the new device generates a fresh key pair and registers its public key. This automatically invalidates all previous sessions.</span>
+        </p>
+        <p>
+          <strong><span lang="de">Konsequenz:</span><span lang="en">Consequence:</span></strong> <span lang="de">Selbst wenn jemand die Login-Daten eines Schülers kennt und sich
+          auf einem zweiten Gerät anmeldet, wird das erste Gerät sofort abgemeldet und der dort gespeicherte
+          private Schlüssel ist wertlos. Es kann zu keinem Zeitpunkt zwei gültige Ausweise für dieselbe
+          Person geben.</span><span lang="en">Even if someone knows a student's login credentials and logs in on a second device, the first device is immediately logged out and the private key stored there becomes worthless. There can never be two valid ID cards for the same person at any time.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 4. Datenschutz -->
+  <!-- ============================================================ -->
+  <section class="section section--alt" id="datenschutz">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title"><span lang="de">4. Datenschutz &amp; DSGVO-Konformität</span><span lang="en">4. Privacy &amp; GDPR Compliance</span></h2>
+        <p class="section__subtitle">
+          <span class="doc-badge doc-badge--gdpr">GDPR</span>&ensp;<span lang="de">Datenschutz ist kein nachträgliches Feature,
+          sondern Entwurfsprinzip.</span><span lang="en">Privacy is not an afterthought but a design principle.</span>
+        </p>
+      </div>
+      <div class="doc-prose">
+
+        <h3><span lang="de">Datenminimierung</span><span lang="en">Data Minimization</span></h3>
+        <p>
+          <span lang="de">Hagen-ID speichert ausschließlich die Daten, die für die Funktion eines Schülerausweises
+          zwingend erforderlich sind: Vor- und Nachname, Geburtsdatum, Klassenzugehörigkeit, Schulfoto
+          und eine interne Schüler-ID aus der Schulverwaltungssoftware. Optional kann eine E-Mail-Adresse
+          hinterlegt werden (z.&thinsp;B. für einen künftigen PIN-Reset). Es werden keine
+          Leistungsdaten, Noten, Fehlzeiten, Adressen oder sonstigen personenbezogenen Daten erhoben.</span><span lang="en">Hagen-ID stores only data that is strictly required for the function of a student ID: first and last name, date of birth, class membership, school photo, and an internal student ID from the school management software. Optionally, an email address can be stored (e.g., for future PIN reset). No performance data, grades, attendance records, addresses or other personal data are collected.</span>
+        </p>
+
+        <h3><span lang="de">Kein Tracking, keine Analyse</span><span lang="en">No Tracking, No Analytics</span></h3>
+        <p>
+          <span lang="de">Die PWA enthält weder Analytics-Tools noch Tracking-Pixel oder Drittanbieter-Skripte.
+          Es werden keine Nutzungsprofile erstellt. Die Ausweis-App kommuniziert ausschließlich mit dem
+          schuleigenen Server &mdash; zu keinem Zeitpunkt werden Daten an externe Dienste übertragen.</span><span lang="en">The PWA contains neither analytics tools nor tracking pixels or third-party scripts. No usage profiles are created. The ID card app communicates exclusively with the school's own server — data is never transmitted to external services at any time.</span>
+        </p>
+
+        <h3><span lang="de">Verschlüsselung in der Datenbank</span><span lang="en">Encryption in the Database</span></h3>
+        <p>
+          <span lang="de">Besonders sensible Felder werden in der Datenbank zusätzlich <strong>verschlüsselt</strong>
+          gespeichert (Fernet: AES + HMAC): Vor- und Nachname, Geburtsdatum, Schulfoto, Login-PIN und
+          TOTP-Secret. Der Schlüssel dafür liegt außerhalb der Datenbank in der Server-Konfiguration.
+          Ein entwendetes Datenbank-Backup enthält damit keine lesbaren Schülerdaten. Der Login-Abgleich
+          erfolgt über sogenannte Blind-Indexe (HMAC), sodass die Klartextdaten dafür nicht benötigt
+          werden.</span><span lang="en">Particularly sensitive fields are additionally stored <strong>encrypted</strong> in the database (Fernet: AES + HMAC): first and last name, date of birth, school photo, login PIN and TOTP secret. The key is kept outside the database in the server configuration. A stolen database backup therefore contains no readable student data. Login matching is done via blind indexes (HMAC), so the plaintext data is not needed for it.</span>
+        </p>
+
+        <h3><span lang="de">Speicherung und Löschung</span><span lang="en">Storage and Deletion</span></h3>
+        <ul>
+          <li><strong><span lang="de">Soft-Delete mit Löschfrist:</span><span lang="en">Soft-delete with retention period:</span></strong> <span lang="de">Wenn ein Schüler aus dem System entfernt wird
+            (z.&thinsp;B. durch einen aktualisierten CSV-Import), werden die Daten zunächst als gelöscht
+            markiert, aber nicht sofort entfernt. Nach einer Frist von 4 Wochen erfolgt die endgültige,
+            unwiderrufliche Löschung durch einen automatischen Bereinigungsprozess. In diesem Zeitraum
+            kann eine versehentliche Löschung rückgängig gemacht werden.</span><span lang="en">When a student is removed from the system (e.g., through an updated CSV import), the data is first marked as deleted but not immediately removed. After a 4-week retention period, permanent, irreversible deletion occurs through an automated cleanup process. Accidental deletions can be recovered during this period.</span></li>
+          <li><strong><span lang="de">Passwörter:</span><span lang="en">Passwords:</span></strong> <span lang="de">Admin-Passwörter werden ausschließlich als bcrypt-Hash
+            gespeichert &mdash; ein Brute-Force-resistentes Verfahren mit automatischem Salt.
+            Klartext-Passwörter werden zu keinem Zeitpunkt in der Datenbank abgelegt.</span><span lang="en">Admin passwords are stored exclusively as bcrypt hashes — a brute-force resistant algorithm with automatic salt. Plain text passwords are never stored in the database.</span></li>
+          <li><strong><span lang="de">Session-Tokens:</span><span lang="en">Session tokens:</span></strong> <span lang="de">Auch Session-Tokens werden nicht im Klartext gespeichert.
+            In der Datenbank liegt nur der SHA-256-Hash. Bei einem hypothetischen Datenbank-Leak können
+            daraus keine gültigen Sitzungen rekonstruiert werden.</span><span lang="en">Session tokens are also not stored in plain text. Only the SHA-256 hash is stored in the database. In a hypothetical database leak, no valid sessions can be reconstructed from them.</span></li>
+        </ul>
+
+        <h3><span lang="de">Verifizierung ohne Datenpreisgabe</span><span lang="en">Verification Without Data Disclosure</span></h3>
+        <p>
+          <span lang="de">Wenn ein Ausweis per QR-Code gescannt wird, sendet der Prüfende lediglich den Inhalt des
+          QR-Codes an den Server. Der Server antwortet mit einem binären Ergebnis: gültig oder ungültig,
+          ergänzt um den Namen und das Foto des Schülers (damit die prüfende Person das Gesicht
+          abgleichen kann). Es werden keine darüber hinausgehenden Daten übertragen.</span><span lang="en">When an ID card is scanned via QR code, the verifier only sends the content of the QR code to the server. The server responds with a binary result: valid or invalid, supplemented with the student's name and photo (so the verifier can check the face). No additional data is transmitted.</span>
+        </p>
+
+        <h3><span lang="de">Audit-Log &mdash; sparsam, pseudonym, befristet</span><span lang="en">Audit Log — minimal, pseudonymous, time-limited</span></h3>
+        <p>
+          <span lang="de">Sicherheitsrelevante Ereignisse werden in einem Änderungsprotokoll (Audit-Log) festgehalten:
+          CSV-Imports, manuelle Löschungen und Deaktivierungen, fehlgeschlagene Login-Versuche,
+          Ausweis-Verifizierungen sowie die Vergabe und der Widerruf von API-Schlüsseln. Das Protokoll ist
+          <strong>pseudonym</strong> (IDs statt Klarnamen), wird nach <strong>180 Tagen</strong> automatisch
+          bereinigt und ist ausschließlich für den Systembetreiber einsehbar.</span><span lang="en">Security-relevant events are recorded in a change log (audit log): CSV imports, manual deletions and deactivations, failed login attempts, ID verifications, and the issuing and revocation of API keys. The log is <strong>pseudonymous</strong> (IDs instead of names), automatically purged after <strong>180 days</strong>, and visible only to the system operator.</span>
+        </p>
+        <p>
+          <span lang="de">Bewusst <strong>nicht</strong> protokolliert wird der normale Abruf des eigenen Ausweises durch
+          die Schülerin oder den Schüler. Nur für einen konkreten Verdachtsfall (z.&thinsp;B. Missbrauch eines
+          Ausweises) kann der Betreiber eine gezielte, <strong>zeitlich begrenzte</strong> Detail-Nachverfolgung
+          aktivieren &mdash; auf eine Schule oder eine einzelne ID eingegrenzt, mit automatischer Abschaltung
+          (Standard 48 Stunden, maximal 7 Tage). Die Aktivierung selbst wird ebenfalls protokolliert.</span><span lang="en">Routine access to one's own ID card by the student is deliberately <strong>not</strong> logged. Only for a concrete suspicious case (e.g., misuse of an ID) can the operator activate a targeted, <strong>time-limited</strong> detailed trace &mdash; scoped to one school or a single ID, with automatic shutoff (default 48 hours, maximum 7 days). The activation itself is also logged.</span>
+        </p>
+
+        <div class="doc-callout doc-callout--green">
+          <p><strong><span lang="de">Rechtsgrundlage:</span><span lang="en">Legal basis:</span></strong> <span lang="de">Die Verarbeitung der Daten stützt sich auf die Erfüllung
+            der schulischen Aufgabe (Art. 6 Abs. 1 lit. e DSGVO) in Verbindung mit den
+            schulrechtlichen Datenschutzverordnungen des Landes NRW. Für das Schülerfoto kann eine
+            Einwilligung erforderlich sein, sofern es über den Zweck der Identifikation hinaus verwendet wird.</span><span lang="en">Data processing is based on the fulfillment of school tasks (Art. 6 Para. 1 lit. e GDPR) in connection with state school data protection regulations in NRW. Consent may be required for student photos if used beyond the purpose of identification.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 5. Datenmodell -->
+  <!-- ============================================================ -->
+  <section class="section" id="datenmodell">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title"><span lang="de">5. Gespeicherte Daten &amp; Datenminimierung</span><span lang="en">5. Stored Data &amp; Data Minimization</span></h2>
+        <p class="section__subtitle"><span lang="de">Welche Daten werden wo gespeichert?</span><span lang="en">Which data is stored where?</span></p>
+      </div>
+      <div class="doc-prose">
+        <p>
+          <span lang="de">Die folgende Tabelle zeigt alle gespeicherten Datenkategorien, ihren Zweck und den Speicherort.</span><span lang="en">The following table shows all stored data categories, their purpose, and storage location.</span>
+        </p>
+
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th><span lang="de">Datenkategorie</span><span lang="en">Data Category</span></th>
+              <th><span lang="de">Zweck</span><span lang="en">Purpose</span></th>
+              <th><span lang="de">Speicherort</span><span lang="en">Storage Location</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span lang="de">Vor- und Nachname</span><span lang="en">First and Last Name</span></td>
+              <td><span lang="de">Anzeige auf dem Ausweis, Login-Identifikation</span><span lang="en">Display on ID card, login identification</span></td>
+              <td><span lang="de">Datenbank (Server, verschlüsselt)</span><span lang="en">Database (Server, encrypted)</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Geburtsdatum</span><span lang="en">Date of Birth</span></td>
+              <td><span lang="de">Login-Authentifizierung, Anzeige auf Ausweis</span><span lang="en">Login authentication, display on ID card</span></td>
+              <td><span lang="de">Datenbank (Server, verschlüsselt)</span><span lang="en">Database (Server, encrypted)</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Klassenzugehörigkeit</span><span lang="en">Class Membership</span></td>
+              <td><span lang="de">Anzeige auf dem Ausweis, Verwaltung</span><span lang="en">Display on ID card, administration</span></td>
+              <td><span lang="de">Datenbank (Server)</span><span lang="en">Database (Server)</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Schulfoto</span><span lang="en">School Photo</span></td>
+              <td><span lang="de">Anzeige auf dem Ausweis, Identitätsprüfung bei Verifizierung</span><span lang="en">Display on ID card, identity verification during verification</span></td>
+              <td><span lang="de">Datenbank (Server, verschlüsselt)</span><span lang="en">Database (Server, encrypted)</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Interne Schüler-ID</span><span lang="en">Internal Student ID</span></td>
+              <td><span lang="de">Abgleich mit Schulverwaltungssoftware beim Import und Sync</span><span lang="en">Reconciliation with school management software during import and sync</span></td>
+              <td><span lang="de">Datenbank (Server)</span><span lang="en">Database (Server)</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">E-Mail-Adresse (optional)</span><span lang="en">Email Address (optional)</span></td>
+              <td><span lang="de">Optionales Feld, z.&thinsp;B. für künftigen PIN-Reset</span><span lang="en">Optional field, e.g., for future PIN reset</span></td>
+              <td><span lang="de">Datenbank (Server)</span><span lang="en">Database (Server)</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">6-stellige Login-PIN</span><span lang="en">6-digit Login PIN</span></td>
+              <td><span lang="de">Authentifizierung der Schüler beim Login</span><span lang="en">Student authentication during login</span></td>
+              <td><span lang="de">Datenbank (Server, verschlüsselt)</span><span lang="en">Database (Server, encrypted)</span></td>
+            </tr>
+            <tr>
+              <td>TOTP-Secret</td>
+              <td><span lang="de">Generierung des wechselnden QR-Codes</span><span lang="en">Generation of changing QR code</span></td>
+              <td><span lang="de">Datenbank (Server, verschlüsselt) + Gerät (als nicht exportierbarer Schlüssel)</span><span lang="en">Database (Server, encrypted) + Device (as non-extractable key)</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Geräteschlüssel (privat)</span><span lang="en">Device Key (private)</span></td>
+              <td><span lang="de">Signierung der QR-Codes (ECDSA P-256)</span><span lang="en">Signing of QR codes (ECDSA P-256)</span></td>
+              <td><span lang="de">Nur auf dem Gerät des Schülers (nicht exportierbar)</span><span lang="en">Only on student's device (non-extractable)</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Geräteschlüssel (öffentlich)</span><span lang="en">Device Key (public)</span></td>
+              <td><span lang="de">Serverseitige Signaturprüfung</span><span lang="en">Server-side signature verification</span></td>
+              <td><span lang="de">Datenbank (Server)</span><span lang="en">Database (Server)</span></td>
+            </tr>
+            <tr>
+              <td>Session-Token-Hash</td>
+              <td><span lang="de">Highlander-Prüfung (Ein-Geräte-Prinzip)</span><span lang="en">Highlander check (single-device principle)</span></td>
+              <td><span lang="de">Datenbank (Server)</span><span lang="en">Database (Server)</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="doc-callout">
+          <p><strong><span lang="de">Was nicht gespeichert wird:</span><span lang="en">What is not stored:</span></strong> <span lang="de">Adressen, Telefonnummern,
+            Noten, Fehlzeiten, Standortdaten, Geräteinformationen oder Nutzungsstatistiken.
+            IP-Adressen werden beim normalen Abruf des eigenen Ausweises nicht gespeichert &mdash; nur bei
+            sicherheitsrelevanten Ereignissen (z.&thinsp;B. fehlgeschlagenen Login-Versuchen) oder während
+            einer aktiven Verdachtsfall-Nachverfolgung.</span><span lang="en">Addresses, phone numbers, grades, attendance records, location data, device information or usage statistics. IP addresses are not stored during normal access to one's own ID &mdash; only for security-relevant events (e.g., failed login attempts) or during an active suspicious-case trace.</span></p>
+        </div>
+
+        <h3><span lang="de">Daten auf dem Schülergerät</span><span lang="en">Data on Student Device</span></h3>
+        <p>
+          <span lang="de">Auf dem Smartphone des Schülers werden nach dem Login folgende Daten lokal gespeichert:
+          die Anmelde-Sitzung als HttpOnly-Cookies (per JavaScript nicht auslesbar, daher XSS-geschützt),
+          das TOTP-Secret und der private Signierschlüssel &mdash; beide als <em>nicht exportierbare</em>
+          kryptografische Schlüssel in der Browser-Datenbank (IndexedDB) &mdash; sowie die Ausweisdaten für
+          die Offline-Anzeige. Diese Daten ermöglichen es, den Ausweis auch ohne Internetverbindung
+          anzuzeigen und gültige QR-Codes zu erzeugen. Beim Abmelden werden sie gelöscht.</span><span lang="en">The following data is stored locally on the student's smartphone after login: the login session as HttpOnly cookies (not readable by JavaScript, hence XSS-protected), the TOTP secret and the private signing key &mdash; both as <em>non-extractable</em> cryptographic keys in the browser database (IndexedDB) &mdash; plus the ID card data for offline display. This data allows the ID card to be displayed and valid QR codes to be generated even without internet connectivity. It is deleted on logout.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 6. Rollenkonzept -->
+  <!-- ============================================================ -->
+  <section class="section section--alt" id="rollen">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title"><span lang="de">6. Rollenkonzept &amp; Zugriffssteuerung</span><span lang="en">6. Role Model &amp; Access Control</span></h2>
+      </div>
+      <div class="doc-prose">
+        <p>
+          <span lang="de">Hagen-ID unterscheidet drei Rollen im Admin-Bereich. Jede Rolle hat klar definierte Berechtigungen nach dem Prinzip der minimalen Rechte.</span><span lang="en">Hagen-ID distinguishes three roles in the admin area. Each role has clearly defined permissions following the principle of least privilege.</span>
+        </p>
+
+        <div class="doc-grid">
+          <div class="doc-card">
+            <h4><span lang="de">Superadmin</span><span lang="en">Superadmin</span></h4>
+            <p>
+              <span lang="de">Systemweiter Vollzugriff. Kann Schulen anlegen, alle Daten einsehen und systemübergreifende Einstellungen verwalten. Vorgesehen für den technischen Betreiber oder Schulträger.</span><span lang="en">System-wide full access. Can create schools, view all data, and manage system-wide settings. Intended for technical operators or school authorities.</span>
+            </p>
+          </div>
+          <div class="doc-card">
+            <h4><span lang="de">Schuladmin</span><span lang="en">School Admin</span></h4>
+            <p>
+              <span lang="de">Vollzugriff auf die eigene Schule. Kann Schülerdaten importieren, Fotos hochladen, Klassen und Bildungsgänge verwalten, Login-PINs drucken und Schuleinstellungen anpassen. Vorgesehen für Schulleitungen und Sekretariate.</span><span lang="en">Full access to their own school. Can import student data, upload photos, manage classes and programs, print login PINs, and adjust school settings. Intended for school principals and administrative staff.</span>
+            </p>
+          </div>
+          <div class="doc-card">
+            <h4><span lang="de">Lehrkraft</span><span lang="en">Teacher</span></h4>
+            <p>
+              <span lang="de">Eingeschränkter Lesezugriff auf die eigene Schule im Admin-Dashboard. Kann Schülerdaten einsehen, aber keine Imports durchführen und keine Daten verändern. Erhält zusätzlich einen eigenen digitalen Ausweis über die PWA (Klasse &bdquo;Lehrerkollegium&ldquo;) und kann das eigene Foto selbst über die App hochladen.</span><span lang="en">Limited read-only access to their own school in the admin dashboard. Can view student data but cannot perform imports or modify data. Additionally receives their own digital ID via the PWA (class "Lehrerkollegium") and can upload their own photo directly through the app.</span>
+            </p>
+          </div>
+        </div>
+
+        <h3><span lang="de">Mandantenfähigkeit</span><span lang="en">Multi-tenancy</span></h3>
+        <p>
+          <span lang="de">Das System ist mandantenfähig: Mehrere Schulen können dieselbe Installation nutzen, ohne gegenseitig auf Daten zugreifen zu können. Jede Schule hat einen eigenen URL-Pfad (z.&thinsp;B. <code>example.de/kkbk</code>), eigenes Branding (Logo, Farben) und eigene Benutzerkonten. Schuladmins und Lehrkräfte sehen ausschließlich die Daten ihrer eigenen Schule.</span><span lang="en">The system is multi-tenant: multiple schools can use the same installation without being able to access each other's data. Each school has its own URL path (e.g., <code>example.com/kkbk</code>), its own branding (logo, colors), and its own user accounts. School admins and teachers see only their own school's data.</span>
+        </p>
+        <p>
+          <span lang="de">Die Trennung wird nicht nur in der Anwendung geprüft, sondern zusätzlich <strong>auf
+          Datenbankebene erzwungen</strong> (PostgreSQL Row-Level-Security): Selbst ein Programmierfehler in
+          der Anwendung könnte die Daten einer anderen Schule nicht sichtbar machen &mdash; die Datenbank
+          selbst verweigert den Zugriff.</span><span lang="en">The separation is not only checked in the application but additionally <strong>enforced at the database level</strong> (PostgreSQL row-level security): even a programming error in the application could not expose another school's data &mdash; the database itself denies access.</span>
+        </p>
+
+        <h3><span lang="de">Admin-Authentifizierung</span><span lang="en">Admin Authentication</span></h3>
+        <p>
+          <span lang="de">Administratoren melden sich mit E-Mail-Adresse und Passwort an. Das System setzt Rate Limiting ein: Nach 5 fehlgeschlagenen Anmeldeversuchen innerhalb von 15 Minuten wird temporär gesperrt &mdash; und zwar <strong>pro Konto und pro IP-Adresse</strong>, sodass sich die Sperre nicht durch wechselnde IP-Adressen umgehen lässt. Die Admin-Session wird über ein HttpOnly-Cookie verwaltet, das nicht per JavaScript ausgelesen werden kann und somit vor Cross-Site-Scripting (XSS) geschützt ist. Eine Passwortänderung macht alle bestehenden Sitzungen des Kontos sofort ungültig.</span><span lang="en">Administrators log in with email address and password. The system implements rate limiting: after 5 failed login attempts within 15 minutes, access is temporarily blocked &mdash; <strong>per account and per IP address</strong>, so the lockout cannot be bypassed by rotating IP addresses. Admin sessions are managed via HttpOnly cookies, which cannot be read by JavaScript and are thus protected against Cross-Site Scripting (XSS) attacks. A password change immediately invalidates all existing sessions of the account.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 7. Prozesse -->
+  <!-- ============================================================ -->
+  <section class="section" id="prozesse">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title"><span lang="de">7. Verwaltungsprozesse</span><span lang="en">7. Administrative Processes</span></h2>
+        <p class="section__subtitle"><span lang="de">Wie Daten ins System kommen und der Ausweis zum Schüler gelangt.</span><span lang="en">How data gets into the system and how the ID reaches the student.</span></p>
+      </div>
+      <div class="doc-prose">
+
+        <h3><span lang="de">7.1 Schülerdaten importieren (CSV-Import)</span><span lang="en">7.1 Importing Student Data (CSV Import)</span></h3>
+        <p>
+          <span lang="de">Das Sekretariat exportiert eine CSV-Datei aus der Schulverwaltungssoftware (z.&thinsp;B. SchILD-NRW) mit den Feldern: Interne ID, Vorname, Nachname, Geburtsdatum und Klasse. Diese Datei wird im Admin-Dashboard hochgeladen.</span><span lang="en">The administrative office exports a CSV file from the school administration software (e.g., SchILD-NRW) with the fields: Internal ID, first name, last name, date of birth, and class. This file is uploaded in the admin dashboard.</span>
+        </p>
+        <p>
+          <span lang="de">Hagen-ID zeigt zunächst eine <strong>Vorschau</strong> aller Änderungen: Welche Schüler werden neu angelegt, welche aktualisiert, welche sind nicht mehr in der CSV enthalten (und werden daher zur Löschung vorgemerkt). Erst nach expliziter Bestätigung durch den Admin werden die Änderungen übernommen.</span><span lang="en">Hagen-ID first shows a <strong>preview</strong> of all changes: which students will be created, which will be updated, and which are no longer in the CSV file (and will therefore be marked for deletion). Changes are only applied after explicit confirmation by the admin.</span>
+        </p>
+
+        <!-- Screenshot: Schülerverwaltung im Admin-Dashboard -->
+        <div style="text-align: center; margin: 1.5rem 0;">
+          <img src="assets/img/admin-schuelerliste.png"
+            alt="Admin-Dashboard: Schülerverwaltung mit Suchfeld, Klassen, Gültigkeit und Status (Testdaten)"
+            style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,0.12);"
+            loading="lazy">
+          <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.75rem;">
+            <span lang="de">Die Schülerverwaltung im Admin-Dashboard nach dem Import (Testdaten)</span><span lang="en">Student management in the admin dashboard after import (test data)</span>
+          </p>
+        </div>
+
+        <div class="doc-callout">
+          <p><strong><span lang="de">Automatische TOTP-Secret-Generierung:</span><span lang="en">Automatic TOTP Secret Generation:</span></strong> <span lang="de">Für jeden neu angelegten Schüler wird automatisch ein individuelles TOTP-Secret erzeugt. Dies geschieht serverseitig mit einem kryptografisch sicheren Zufallsgenerator. Ebenso wird automatisch eine zufällige 6-stellige Login-PIN generiert.</span><span lang="en">For each newly created student, an individual TOTP secret is automatically generated. This is done server-side using a cryptographically secure random number generator. A random 6-digit login PIN is also automatically generated.</span></p>
+        </div>
+
+        <div class="doc-callout doc-callout--amber">
+          <p><strong><span lang="de">Automatisierter Sync (Alternative zum CSV-Import):</span><span lang="en">Automated Sync (Alternative to CSV Import):</span></strong> <span lang="de">Für Schulen mit entsprechender IT-Infrastruktur bietet Hagen-ID auch eine REST-API zur automatisierten Synchronisation der Schülerdaten. Über diese API können externe Tools neue Schüler anlegen, bestehende Daten aktualisieren und ausgetretene Schüler deaktivieren &mdash; ohne manuellen CSV-Upload. Die Authentifizierung erfolgt über schulspezifische API-Keys. Mit <a href="https://github.com/beitist/schild-spider">SchildSpider</a> steht ein fertiges Management-Tool fürs Sekretariat bereit, das den Abgleich mit SchILD-NRW übernimmt.</span><span lang="en">For schools with suitable IT infrastructure, Hagen-ID also offers a REST API for automated synchronization of student data. Through this API, external tools can create new students, update existing data, and deactivate departed students &mdash; without manual CSV upload. Authentication is via school-specific API keys. With <a href="https://github.com/beitist/schild-spider">SchildSpider</a>, a ready-made management tool for the school office is available that handles reconciliation with SchILD-NRW.</span></p>
+        </div>
+
+        <h3><span lang="de">7.2 Login-PINs verteilen</span><span lang="en">7.2 Distributing Login PINs</span></h3>
+        <p>
+          <span lang="de">Nach dem Import können die Login-PINs über eine Druckfunktion im Admin-Dashboard als individuelle Kärtchen ausgedruckt werden. Jedes Kärtchen enthält den Namen des Schülers, die 6-stellige PIN und einen QR-Code, der direkt zur Login-Seite der Schule führt. Die Verteilung erfolgt über die Klassenlehrkräfte &mdash; analog zu Zugangsdaten für andere Schulsysteme.</span><span lang="en">After import, login PINs can be printed as individual cards via a print function in the admin dashboard. Each card contains the student's name, the 6-digit PIN, and a QR code linking directly to the school's login page. Distribution is done through class teachers — similar to access credentials for other school systems.</span>
+        </p>
+
+        <!-- Screenshot: PIN-Druck -->
+        <div style="text-align: center; margin: 1.5rem 0;">
+          <img src="assets/img/admin-pin-druck.png"
+            alt="Druckansicht der Login-PIN-Kärtchen: pro Person Name, Klasse, QR-Code und PIN (Testdaten)"
+            style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,0.12);"
+            loading="lazy">
+          <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.75rem;">
+            <span lang="de">Druckansicht der Login-PIN-Kärtchen &mdash; pro Person mit QR-Code zur Login-Seite (Testdaten)</span><span lang="en">Print view of the login PIN cards &mdash; one per person with a QR code to the login page (test data)</span>
+          </p>
+        </div>
+
+        <h3><span lang="de">7.3 Fotos hochladen</span><span lang="en">7.3 Uploading Photos</span></h3>
+        <p>
+          <span lang="de">Schülerfotos können im Admin-Dashboard einzeln pro Schüler hochgeladen werden. Das Foto wird serverseitig gespeichert und auf dem Ausweis angezeigt. Beim CSV-Import wird ein Hash des Fotos gespeichert, sodass bei späteren Imports nur geänderte Fotos aktualisiert werden.</span><span lang="en">Student photos can be uploaded individually per student in the admin dashboard. The photo is stored server-side and displayed on the ID. During CSV import, a hash of the photo is stored so that only changed photos are updated in later imports.</span>
+        </p>
+        <p>
+          <span lang="de"><strong>Lehrkräfte</strong> können ihr Foto selbst über die PWA hochladen &mdash; direkt aus der Ausweis-App heraus. Für Schülerinnen und Schüler erfolgt der Upload ausschließlich über das Admin-Dashboard durch die Schulverwaltung.</span><span lang="en"><strong>Teachers</strong> can upload their own photo directly through the PWA &mdash; from within the ID card app. For students, photo upload is exclusively done through the admin dashboard by school administration.</span>
+        </p>
+
+        <h3><span lang="de">7.4 Schüler deaktivieren oder löschen</span><span lang="en">7.4 Deactivating or Deleting Students</span></h3>
+        <p>
+          <span lang="de">Einzelne Schüler können vom Schuladmin manuell deaktiviert werden (z.&thinsp;B. bei Schulverweis). Der Ausweis wird dann sofort ungültig. Bei der nächsten endgültigen Löschung (nach der 4-Wochen-Frist) werden alle personenbezogenen Daten unwiderruflich entfernt.</span><span lang="en">Individual students can be manually deactivated by the school admin (e.g., in case of expulsion). The ID then becomes immediately invalid. Upon permanent deletion (after the 4-week grace period), all personal data is irreversibly removed.</span>
+        </p>
+
+        <h3><span lang="de">7.5 Gültigkeit und Schuljahreswechsel</span><span lang="en">7.5 Validity and School Year Transitions</span></h3>
+        <p>
+          <span lang="de">Jede Schule kann eine Gültigkeitsstrategie für Ausweise festlegen: automatisch bis zum Ende des aktuellen Schulhalbjahres oder ein festes Datum. Beim Schuljahreswechsel wird die Gültigkeit durch einen neuen CSV-Import aktualisiert. Schüler, die nicht mehr in der CSV auftauchen, werden automatisch zur Löschung vorgemerkt.</span><span lang="en">Each school can set an ID validity strategy: automatically until the end of the current school term or a fixed date. At the school year transition, validity is updated through a new CSV import. Students who no longer appear in the CSV are automatically marked for deletion.</span>
+        </p>
+
+        <h3><span lang="de">7.6 Schul- und Dienstbescheinigungen (optional)</span><span lang="en">7.6 Enrollment and Employment Certificates (optional)</span></h3>
+        <p>
+          <span lang="de">Schulen können pro Klasse freischalten, dass Schülerinnen und Schüler direkt aus der App eine
+          <strong>Schulbescheinigung als PDF</strong> herunterladen (Lehrkräfte entsprechend eine
+          Dienstbescheinigung). Das Dokument trägt einen dauerhaften Verifizierungs-QR-Code: Beim Scannen
+          zeigt der Server den aktuellen Live-Status &mdash; aktiv eingeschrieben oder nicht. Eine
+          Bescheinigung &bdquo;widerruft sich&ldquo; damit automatisch, sobald die Person die Schule
+          verlässt. Briefkopf, Logo und Textbausteine sind pro Schule anpassbar.</span><span lang="en">Schools can enable, per class, that students download an <strong>enrollment certificate as a PDF</strong> directly from the app (teachers receive an employment certificate accordingly). The document carries a permanent verification QR code: when scanned, the server shows the current live status &mdash; actively enrolled or not. A certificate thus &ldquo;revokes itself&rdquo; automatically as soon as the person leaves the school. Letterhead, logo and text blocks are customizable per school.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 8. Architektur -->
+  <!-- ============================================================ -->
+  <section class="section section--alt" id="architektur">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title"><span lang="de">8. Technische Architektur</span><span lang="en">8. Technical Architecture</span></h2>
+        <p class="section__subtitle"><span lang="de">Für IT-Beauftragte und Schulträger.</span><span lang="en">For IT officers and school authorities.</span></p>
+      </div>
+      <div class="doc-prose">
+
+        <h3><span lang="de">Systemkomponenten</span><span lang="en">System Components</span></h3>
+        <p>
+          <span lang="de">Hagen-ID besteht aus vier Docker-Containern, die als Einheit betrieben werden:</span><span lang="en">Hagen-ID consists of four Docker containers that are operated as a unit:</span>
+        </p>
+
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th><span lang="de">Komponente</span><span lang="en">Component</span></th>
+              <th><span lang="de">Technologie</span><span lang="en">Technology</span></th>
+              <th><span lang="de">Funktion</span><span lang="en">Function</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span lang="de">Datenbank</span><span lang="en">Database</span></td>
+              <td>PostgreSQL 16</td>
+              <td><span lang="de">Persistente Datenspeicherung aller Schüler- und Verwaltungsdaten</span><span lang="en">Persistent storage of all student and administrative data</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">API-Server</span><span lang="en">API Server</span></td>
+              <td>Python / FastAPI</td>
+              <td><span lang="de">Geschäftslogik, Authentifizierung, QR-Code-Verifizierung, CSV-Import, Sync-API</span><span lang="en">Business logic, authentication, QR code verification, CSV import, sync API</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Admin-Dashboard</span><span lang="en">Admin Dashboard</span></td>
+              <td>React (SPA)</td>
+              <td><span lang="de">Weboberfläche für die Schulverwaltung</span><span lang="en">Web interface for school administration</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Schüler-PWA</span><span lang="en">Student PWA</span></td>
+              <td>React (PWA)</td>
+              <td><span lang="de">Digitaler Ausweis auf dem Smartphone (für Schüler und Lehrkräfte)</span><span lang="en">Digital ID on the smartphone (for students and teachers)</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Architekturdiagramm -->
+        <div class="diagram" id="diagram-architecture" style="margin: 1.5rem 0;">
+          <img src="assets/img/architecture.svg" alt="Systemarchitektur: Hagen-ID — Docker-Container, Netzwerksegmentierung, Datenflüsse" style="max-width: 100%; height: auto;">
+        </div>
+
+        <h3><span lang="de">Hosting und Infrastruktur</span><span lang="en">Hosting and Infrastructure</span></h3>
+        <p>
+          <span lang="de">Die Anwendung wird auf einem dedizierten Server oder einer VM betrieben. Für den produktiven Einsatz steht eine gehärtete Docker-Compose-Konfiguration bereit, die folgende Sicherheitsmaßnahmen umfasst:</span><span lang="en">The application runs on a dedicated server or VM. For production use, a hardened Docker Compose configuration is available with the following security measures:</span>
+        </p>
+        <ul>
+          <li><strong><span lang="de">Netzwerksegmentierung:</span><span lang="en">Network Segmentation:</span></strong> <span lang="de">Die Datenbank befindet sich in einem internen Docker-Netzwerk ohne Internetzugang. Nur der API-Server kann mit der Datenbank kommunizieren. Die Frontends kommunizieren ausschließlich über die API.</span><span lang="en">The database is on an internal Docker network with no internet access. Only the API server can communicate with the database. Frontends communicate exclusively through the API.</span></li>
+          <li><strong><span lang="de">Read-only Filesystems:</span><span lang="en">Read-only Filesystems:</span></strong> <span lang="de">Container-Dateisysteme sind schreibgeschützt, um das Einschleusen von Schadcode zu verhindern.</span><span lang="en">Container filesystems are read-only to prevent malicious code injection.</span></li>
+          <li><strong><span lang="de">Ressourcenbegrenzung:</span><span lang="en">Resource Limits:</span></strong> <span lang="de">CPU- und Speicherlimits pro Container verhindern, dass ein einzelner Dienst den gesamten Server belastet.</span><span lang="en">CPU and memory limits per container prevent a single service from overloading the entire server.</span></li>
+          <li><strong>TLS/HTTPS:</strong> <span lang="de">Die gesamte Kommunikation zwischen Browser und Server erfolgt verschlüsselt über HTTPS. Die TLS-Terminierung erfolgt über einen vorgeschalteten Reverse Proxy (Nginx oder Coolify).</span><span lang="en">All communication between browser and server is encrypted via HTTPS. TLS termination is handled by a reverse proxy (Nginx or Coolify).</span></li>
+          <li><strong><span lang="de">Automatische Backups:</span><span lang="en">Automatic Backups:</span></strong> <span lang="de">Ein Backup-Skript sichert die Datenbank täglich. Backups können automatisiert an einen externen Speicherort übertragen werden.</span><span lang="en">A backup script secures the database daily. Backups can be automatically transferred to an external storage location.</span></li>
+        </ul>
+
+        <h3><span lang="de">Sicherheitsmaßnahmen im Überblick</span><span lang="en">Security Measures Overview</span></h3>
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th><span lang="de">Maßnahme</span><span lang="en">Measure</span></th>
+              <th><span lang="de">Beschreibung</span><span lang="en">Description</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>JWT-<span lang="de">Authentifizierung</span><span lang="en">Authentication</span></td>
+              <td><span lang="de">Signierte Tokens mit Ablaufzeit (HS256, mind. 32 Zeichen Secret), Auslieferung als HttpOnly-Cookie</span><span lang="en">Signed tokens with expiration time (HS256, min. 32 character secret), delivered as HttpOnly cookies</span></td>
+            </tr>
+            <tr>
+              <td>bcrypt-<span lang="de">Passwort-Hashing</span><span lang="en">Password Hashing</span></td>
+              <td><span lang="de">Brute-Force-resistentes Hashing mit automatischem Salt</span><span lang="en">Brute-force resistant hashing with automatic salt</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Verschlüsselung at-rest</span><span lang="en">Encryption at rest</span></td>
+              <td><span lang="de">Namen, Geburtsdaten, Fotos, PINs und TOTP-Secrets liegen verschlüsselt in der Datenbank (Fernet); der Schlüssel liegt außerhalb der DB</span><span lang="en">Names, dates of birth, photos, PINs and TOTP secrets are stored encrypted in the database (Fernet); the key is kept outside the DB</span></td>
+            </tr>
+            <tr>
+              <td>Row-Level-Security</td>
+              <td><span lang="de">Mandantentrennung zusätzlich auf Datenbankebene erzwungen (PostgreSQL RLS)</span><span lang="en">Tenant separation additionally enforced at the database level (PostgreSQL RLS)</span></td>
+            </tr>
+            <tr>
+              <td>Rate Limiting</td>
+              <td><span lang="de">5 Fehlversuche pro 15 Minuten, dann temporäre Sperre &mdash; pro Konto und pro IP; Grenzen serverseitig fest verankert</span><span lang="en">5 failed attempts per 15 minutes, then temporary block &mdash; per account and per IP; limits enforced server-side</span></td>
+            </tr>
+            <tr>
+              <td>CORS-<span lang="de">Whitelist</span><span lang="en">Whitelist</span></td>
+              <td><span lang="de">Nur explizit erlaubte Domains können auf die API zugreifen</span><span lang="en">Only explicitly allowed domains can access the API</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Gerätegebundene Signaturen</span><span lang="en">Device-bound Signatures</span></td>
+              <td><span lang="de">QR-Codes werden auf dem Gerät signiert (ECDSA P-256, WebCrypto); der private Schlüssel ist nicht exportierbar und verlässt das Gerät nie</span><span lang="en">QR codes are signed on the device (ECDSA P-256, WebCrypto); the private key is non-extractable and never leaves the device</span></td>
+            </tr>
+            <tr>
+              <td>TOTP (RFC 6238)</td>
+              <td><span lang="de">Zeitbasierte Einmalcodes mit 30-Sekunden-Intervall</span><span lang="en">Time-based one-time codes with 30-second intervals</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Highlander-Session</span><span lang="en">Highlander Session</span></td>
+              <td><span lang="de">Nur ein aktives Gerät pro Schüler, Token- und Schlüssel-Invalidierung bei neuem Login</span><span lang="en">Only one active device per student; token and key invalidation on new login</span></td>
+            </tr>
+            <tr>
+              <td>API-Key-<span lang="de">Authentifizierung</span><span lang="en">Authentication</span></td>
+              <td><span lang="de">Schulspezifische API-Keys für die Sync-Schnittstelle (SHA-256-Hash in DB, einmalig sichtbar); optional zusätzlich per IP-Allowlist abgesichert</span><span lang="en">School-specific API keys for the sync interface (SHA-256 hash stored in DB, shown once only); optionally secured further with an IP allowlist</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Pseudonymes Audit-Log</span><span lang="en">Pseudonymous Audit Log</span></td>
+              <td><span lang="de">Sicherheitsereignisse mit 180-Tage-Aufbewahrung; Detail-Nachverfolgung nur zeitlich begrenzt im Verdachtsfall</span><span lang="en">Security events with 180-day retention; detailed tracing only time-limited in suspicious cases</span></td>
+            </tr>
+            <tr>
+              <td>Security Headers</td>
+              <td>CSP, X-Frame-Options, X-Content-Type-Options, HSTS via Reverse Proxy</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 9. Einrichtung & Betrieb -->
+  <!-- ============================================================ -->
+  <section class="section" id="betrieb">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title"><span lang="de">9. Einrichtung &amp; Betrieb</span><span lang="en">9. Setup &amp; Operations</span></h2>
+        <p class="section__subtitle"><span lang="de">Was wird benötigt, wie läuft die Einführung ab?</span><span lang="en">What is needed and how is the rollout structured?</span></p>
+      </div>
+      <div class="doc-prose">
+
+        <h3><span lang="de">Voraussetzungen</span><span lang="en">Requirements</span></h3>
+        <ul>
+          <li><span lang="de">Ein Linux-Server oder eine VM mit mindestens 2 GB RAM und 20 GB Speicher</span><span lang="en">A Linux server or VM with at least 2 GB RAM and 20 GB storage</span></li>
+          <li>Docker und Docker Compose</li>
+          <li><span lang="de">Eine Domain mit TLS-Zertifikat (z.&thinsp;B. via Let's Encrypt)</span><span lang="en">A domain with TLS certificate (e.g., via Let's Encrypt)</span></li>
+          <li><span lang="de">Zugang zur Schulverwaltungssoftware für den CSV-Export der Schülerdaten</span><span lang="en">Access to school administration software for CSV export of student data</span></li>
+        </ul>
+
+        <h3><span lang="de">Einführungsprozess</span><span lang="en">Rollout Process</span></h3>
+        <div class="doc-flow">
+          <span class="doc-flow__step">1. <span lang="de">Server einrichten</span><span lang="en">Set up server</span></span>
+          <span class="doc-flow__arrow">&rarr;</span>
+          <span class="doc-flow__step">2. <span lang="de">Hagen-ID deployen</span><span lang="en">Deploy Hagen-ID</span></span>
+          <span class="doc-flow__arrow">&rarr;</span>
+          <span class="doc-flow__step">3. <span lang="de">Schule konfigurieren</span><span lang="en">Configure school</span></span>
+          <span class="doc-flow__arrow">&rarr;</span>
+          <span class="doc-flow__step">4. <span lang="de">Daten importieren</span><span lang="en">Import data</span></span>
+          <span class="doc-flow__arrow">&rarr;</span>
+          <span class="doc-flow__step">5. <span lang="de">PINs verteilen</span><span lang="en">Distribute PINs</span></span>
+        </div>
+
+        <p>
+          <span lang="de">Im ersten Schritt wird der Server mit der gehärteten Docker-Compose-Konfiguration eingerichtet. Anschließend wird die Schule im System angelegt (Name, Logo, Farben, URL-Pfad). Danach erfolgt der erste CSV-Import der Schülerdaten. Die generierten Login-PINs werden ausgedruckt und über die Klassenlehrkräfte an die Schülerinnen und Schüler verteilt.</span><span lang="en">In the first step, the server is set up with the hardened Docker Compose configuration. Next, the school is created in the system (name, logo, colors, URL path). Then, the first CSV import of student data takes place. The generated login PINs are printed and distributed to students through their class teachers.</span>
+        </p>
+
+        <div class="doc-callout">
+          <p><strong><span lang="de">Zeitaufwand:</span><span lang="en">Time Required:</span></strong> <span lang="de">Die technische Einrichtung ist innerhalb eines Arbeitstages abgeschlossen. Der organisatorische Rollout (PIN-Verteilung, Einführung im Kollegium) kann parallel vorbereitet und in der ersten Schulwoche durchgeführt werden.</span><span lang="en">Technical setup is completed within one business day. The organizational rollout (PIN distribution, staff introduction) can be prepared in parallel and conducted during the first school week.</span></p>
+        </div>
+
+        <h3><span lang="de">Laufender Betrieb</span><span lang="en">Ongoing Operations</span></h3>
+        <ul>
+          <li><strong><span lang="de">Regelmäßiger CSV-Import:</span><span lang="en">Regular CSV Import:</span></strong> <span lang="de">Bei Änderungen im Schülerbestand (Zu- und Abgänge, Klassenwechsel) wird eine aktualisierte CSV-Datei hochgeladen. Das System erkennt Änderungen automatisch.</span><span lang="en">When student roster changes occur (additions, departures, class changes), an updated CSV file is uploaded. The system automatically detects changes.</span></li>
+          <li><strong><span lang="de">Automatische Backups:</span><span lang="en">Automatic Backups:</span></strong> <span lang="de">Die Datenbank wird täglich gesichert.</span><span lang="en">The database is backed up daily.</span></li>
+          <li><strong><span lang="de">Automatische Bereinigung:</span><span lang="en">Automatic Cleanup:</span></strong> <span lang="de">Soft-gelöschte Datensätze werden nach 4 Wochen endgültig entfernt.</span><span lang="en">Soft-deleted records are permanently removed after 4 weeks.</span></li>
+          <li><strong>Updates:</strong> <span lang="de">Neue Versionen können per Docker-Image-Update eingespielt werden, ohne Datenverlust.</span><span lang="en">New versions can be deployed via Docker image updates without data loss.</span></li>
+        </ul>
+
+        <h3><span lang="de">Betrieb über Coolify (empfohlen)</span><span lang="en">Operations via Coolify (Recommended)</span></h3>
+        <p>
+          <span lang="de">Für Schulen ohne dediziertes IT-Personal empfehlen wir den Betrieb über <strong>Coolify</strong> &mdash; eine Self-Hosting-Plattform mit grafischer Oberfläche. Coolify übernimmt automatisch die TLS-Zertifikatsverwaltung, ermöglicht einfache Deployments und Rollbacks über ein Web-UI und reduziert den operativen Aufwand erheblich.</span><span lang="en">For schools without dedicated IT staff, we recommend running it via <strong>Coolify</strong> — a self-hosting platform with a graphical interface. Coolify automatically handles TLS certificate management, enables simple deployments and rollbacks via web UI, and significantly reduces operational overhead.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 10. Kontakt -->
+  <!-- ============================================================ -->
+  <section class="section section--alt" id="kontakt">
+    <div class="container">
+      <div class="section__header">
+        <h2 class="section__title"><span lang="de">10. Kontakt &amp; nächste Schritte</span><span lang="en">10. Contact &amp; Next Steps</span></h2>
+      </div>
+      <div class="doc-prose">
+        <p>
+          <span lang="de">Sie möchten Hagen-ID an Ihrer Schule einsetzen oder haben Fragen zur technischen Umsetzung, zum Datenschutzkonzept oder zur Einführung? Nehmen Sie gerne Kontakt auf:</span><span lang="en">Would you like to implement Hagen-ID at your school, or do you have questions about technical implementation, data protection, or rollout? Please get in touch:</span>
+        </p>
+
+        <div class="doc-grid">
+          <div class="doc-card">
+            <h4><span lang="de">Demonstration &amp; Beratung</span><span lang="en">Demo &amp; Consultation</span></h4>
+            <p>
+              <span lang="de">Wir zeigen Ihnen das System in einer Live-Demo und beantworten alle Fragen zu Funktionsumfang, Datenschutz und Einführung.</span><span lang="en">We'll show you the system in a live demo and answer all your questions about features, data protection, and implementation.</span>
+            </p>
+          </div>
+          <div class="doc-card">
+            <h4><span lang="de">Pilotprojekt</span><span lang="en">Pilot Project</span></h4>
+            <p>
+              <span lang="de">Starten Sie mit einer einzelnen Klasse oder Jahrgangsstufe, um das System im Schulalltag zu erproben, bevor Sie den Rollout auf die gesamte Schule ausweiten.</span><span lang="en">Start with a single class or grade level to test the system in your school environment before rolling out to the entire school.</span>
+            </p>
+          </div>
+          <div class="doc-card">
+            <h4><span lang="de">Quellcode</span><span lang="en">Source Code</span></h4>
+            <p>
+              <span lang="de">Hagen-ID ist Open Source (AGPL-3.0). Der vollständige Quellcode ist auf GitHub einsehbar und kann von Ihrer IT-Abteilung oder externen Gutachtern geprüft werden — die Nutzung ist kostenlos.</span><span lang="en">Hagen-ID is open source (AGPL-3.0). The complete source code is available on GitHub and can be reviewed by your IT department or external auditors — use is free of charge.</span>
+            </p>
+          </div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+          <a href="#" class="btn btn--primary obf-email" data-n="kontakt" data-d="beiti.me">
+            <span lang="de">Kontakt aufnehmen</span>
+            <span lang="en">Get in touch</span>
+          </a>
+          <a href="https://github.com/beitist/schuelerausweis" class="btn btn--secondary" style="margin-left: 0.75rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1em; height: 1em; vertical-align: -0.15em;">
+              <path
+                d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12Z" />
+            </svg>
+            <span lang="de">Quellcode auf GitHub</span>
+            <span lang="en">Source on GitHub</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div data-component="footer"></div>
+
+  <script src="assets/components.js"></script>
+  <script src="assets/lang.js"></script>
+</body>
+
+</html>

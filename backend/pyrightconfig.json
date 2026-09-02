@@ -1,0 +1,6 @@
+{
+  "//": "Pylance/Pyright: venv + Import-Root, damit 'from models import ...', 'from services import ...' und externe Pakete (apscheduler etc.) aufgelöst werden. Ohne das zeigt der Editor sonst 'could not be resolved'-Hinweise, obwohl der Code zur Laufzeit (sys.path.insert) sauber läuft.",
+  "venvPath": "..",
+  "venv": "venv",
+  "extraPaths": ["."]
+}
