@@ -642,8 +642,11 @@ async def upload_photo(
         raise HTTPException(status_code=400, detail="Bild zu groß (max. 10MB)")
 
     # Bild komprimieren (max 800px, JPEG 85%)
-    from services.image import compress_image, hash_image
-    photo_b64 = compress_image(content)
+    from services.image import compress_image, hash_image, UnsupportedImageError
+    try:
+        photo_b64 = compress_image(content)
+    except UnsupportedImageError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     photo_hash = hash_image(photo_b64)
     
     # Existierendes Foto updaten oder neues erstellen

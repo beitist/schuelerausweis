@@ -171,8 +171,9 @@ def fetch_logo_data_uri(url: Optional[str]) -> Optional[str]:
             return f"data:image/svg+xml;base64,{b64}"
 
         # Mit Pillow validieren + Format bestimmen (kein Vertrauen auf Content-Type)
+        # Nur die Formate der mime-Tabelle unten dekodieren (Angriffsfläche Pillow).
         from PIL import Image
-        img = Image.open(BytesIO(raw))
+        img = Image.open(BytesIO(raw), formats=["JPEG", "PNG", "GIF", "WEBP"])
         fmt = (img.format or "PNG").lower()
         img.verify()  # wirft bei defekten Bildern
 

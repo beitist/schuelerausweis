@@ -8,24 +8,37 @@ um Speicherplatz zu sparen und Ladezeiten zu reduzieren.
 import io
 import base64
 import hashlib
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 # Maximale Pixelgröße (längste Seite)
 MAX_DIMENSION = 800
 # JPEG-Qualität (1-100)
 JPEG_QUALITY = 95
 
+# Nur diese Decoder dürfen fremde Uploads anfassen. Ohne Liste probiert Pillow
+# alle ~40 Formate (TIFF, FPX, PSD, ...), und dort lag der Großteil der Lücken.
+# "JPEG" deckt seit Pillow 13 auch Mehrbild-JPEG (MPO) von Handykameras ab.
+UPLOAD_FORMATS = ["JPEG", "PNG", "WEBP"]
+
+
+class UnsupportedImageError(ValueError):
+    """Upload ist kein Bild in einem der UPLOAD_FORMATS."""
+
 
 def compress_image(image_bytes: bytes) -> str:
     """
     Komprimiert ein Bild auf max. 800px, konvertiert zu JPEG und gibt Base64 zurück.
 
+    - Akzeptiert nur UPLOAD_FORMATS, sonst UnsupportedImageError
     - Skaliert proportional auf MAX_DIMENSION
     - Konvertiert RGBA/Palette zu RGB (für JPEG-Kompatibilität)
     - Entfernt EXIF-Daten (Datenschutz)
     - Gibt Base64-String zurück (ohne data:-Prefix)
     """
-    img = Image.open(io.BytesIO(image_bytes))
+    try:
+        img = Image.open(io.BytesIO(image_bytes), formats=UPLOAD_FORMATS)
+    except UnidentifiedImageError as e:
+        raise UnsupportedImageError("Bildformat nicht unterstützt (JPEG, PNG oder WebP)") from e
 
     # EXIF-Rotation anwenden (manche Handys speichern Rotation nur als EXIF)
     try:

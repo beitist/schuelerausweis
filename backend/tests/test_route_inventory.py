@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from fastapi.routing import APIRoute
+from fastapi.routing import APIRoute, iter_route_contexts
 import main
 
 
@@ -117,15 +117,24 @@ ROUTE_CLASSIFICATION = {
 
 
 def _actual_routes() -> set:
-    """Alle (Methode, Pfad)-Paare der App, ohne HEAD/OPTIONS (automatisch von Starlette)."""
+    """Alle (Methode, Pfad)-Paare der App, ohne HEAD/OPTIONS (automatisch von Starlette).
+
+    Seit FastAPI 0.16x stehen eingebundene Router als eigenes Objekt in app.routes,
+    nicht mehr flach als APIRoute. iter_route_contexts löst sie samt Präfix auf.
+    """
     pairs = set()
-    for r in main.app.routes:
-        if not isinstance(r, APIRoute):
+    for ctx in iter_route_contexts(main.app.routes):
+        if not isinstance(ctx.original_route, APIRoute):
             continue  # Mounts/Static/Docs ignorieren
-        for method in r.methods:
+        for method in ctx.methods:
             if method in ("HEAD", "OPTIONS"):
                 continue
-            pairs.add((method, r.path))
+            pairs.add((method, ctx.path))
+    # Sicherung: Ändert FastAPI die Ablage erneut, darf der Test nicht still leer laufen.
+    assert len(pairs) >= len(ROUTE_CLASSIFICATION) // 2, (
+        f"Routen-Aufzählung findet nur {len(pairs)} Routen — hat FastAPI die "
+        "Router-Ablage geändert? _actual_routes() anpassen."
+    )
     return pairs
 
 

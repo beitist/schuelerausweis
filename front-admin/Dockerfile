@@ -6,7 +6,7 @@
 # Für Coolify: Kann auch Nixpacks verwenden (automatisch erkannt)
 
 # ----- Stage 1: Build -----
-FROM node:20-alpine as builder
+FROM node:24.22.2-alpine3.24 as builder
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ ENV VITE_API_URL=$VITE_API_URL
 
 # Dependencies zuerst (für besseres Caching)
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 # Source kopieren und bauen
 COPY . .
@@ -27,7 +27,10 @@ RUN echo "Building with VITE_API_URL=$VITE_API_URL" && npm run build
 
 
 # ----- Stage 2: Production -----
-FROM nginx:1.27-alpine
+# Exakt gepinnt (nginx-Patch + Alpine-Version); Bump per Commit, wenn der
+# Wochenbericht ihn anmahnt. Stable-Linien haben eine gerade Minor-Version.
+# (nginx:1.27-alpine blieb seit 04/2025 auf Alpine 3.21 stehen, inzwischen EOSL.)
+FROM nginx:1.30.6-alpine3.24
 
 # curl für Health-Check
 RUN apk add --no-cache curl

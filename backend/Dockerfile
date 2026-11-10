@@ -4,8 +4,13 @@
 # Multi-Stage Build für kleineres Image
 # Produktion: ~150MB statt ~800MB
 
+# Basis exakt gepinnt (Python-Patch + Debian-Codename), in beiden Stufen gleich
+# und gleich wie in der CI. Jeder Versionswechsel ist ein Commit. Ein Pin friert
+# ein, sobald der nächste Patch erscheint (python:3.11.11-slim blieb so bis 11/2026
+# auf Debian 12.10); den Bump mahnt der wöchentliche Trivy-Bericht an.
+
 # ----- Stage 1: Builder -----
-FROM python:3.11.11-slim as builder
+FROM python:3.11.18-slim-trixie as builder
 
 WORKDIR /app
 
@@ -24,7 +29,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 # ----- Stage 2: Production -----
-FROM python:3.11.11-slim
+FROM python:3.11.18-slim-trixie
 
 WORKDIR /app
 
